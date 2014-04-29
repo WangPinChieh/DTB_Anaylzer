@@ -12,6 +12,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -20,7 +22,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,7 +68,7 @@ public class Program {
 	private JScrollPane scrollPane_2;
 	private JList<Attribute> targetList;
 	private JList<Attribute> ignoreList;
-	private ArrayList<Attribute> dataAttributesType;
+	private ArrayList<Attribute> allDataAttributes;
 
 	/**
 	 * Launch the application.
@@ -86,6 +90,21 @@ public class Program {
 	 * Create the application.
 	 */
 	public Program() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		initialize();
 	}
 
@@ -121,7 +140,7 @@ public class Program {
 								filePath.length() - 3, filePath.length());
 						fileExtension = fileExtension.toLowerCase().trim();
 						if (fileExtension.equals("csv")) {
-							readDataToJTable(filePath);
+							readTop200DataToJTable(filePath);
 						} else {
 							JOptionPane.showMessageDialog(
 									frame.getContentPane(),
@@ -318,7 +337,7 @@ public class Program {
 		frame.getContentPane().add(downMoveBtn);
 	}
 
-	public void readDataToJTable(String filePath) {
+	public void readTop200DataToJTable(String filePath) {
 		final String csvFile = new String(filePath);
 		Thread thread = new Thread(new Runnable() {
 			String line = "";
@@ -332,9 +351,9 @@ public class Program {
 					BufferedReader bufferedReader = new BufferedReader(
 							fileReader);
 					String[] columnName = bufferedReader.readLine().split(",");
-					dataAttributesType = new ArrayList<Attribute>();
+					allDataAttributes = new ArrayList<Attribute>();
 					for (int i = 0; i < columnName.length; i++) {
-						dataAttributesType.add(new Attribute(columnName[i],
+						allDataAttributes.add(new Attribute(columnName[i],
 								i));
 						dataStatistics.add(new HashMap<String, Integer>());
 					}
@@ -365,12 +384,12 @@ public class Program {
 					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
 					for (int i = 0; i < dataStatistics.size(); i++) {
 						if (dataStatistics.get(i).size() >= 5) {
-							dataAttributesType.get(i).setAttributeType(0);
+							allDataAttributes.get(i).setAttributeType(0);
 							continuousListModel
-									.addElement(dataAttributesType.get(i));
+									.addElement(allDataAttributes.get(i));
 						} else {
-							dataAttributesType.get(i).setAttributeType(1);
-							discreteListModel.addElement(dataAttributesType
+							allDataAttributes.get(i).setAttributeType(1);
+							discreteListModel.addElement(allDataAttributes
 									.get(i));
 						}
 					}
@@ -432,19 +451,19 @@ public class Program {
 			switch(direction){
 			case "left":
 				discreteListModel.addElement(attr);
-				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(1);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(1);
 				break;
 			case "right":
 				continuousListModel.addElement(attr);
-				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(0);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(0);
 				break;
 			case "up":
 				targetListModel.addElement(attr);
-				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(2);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(2);
 				break;
 			case "down":
 				ignoreListModel.addElement(attr);
-				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(3);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(3);
 				break;
 			
 			}
@@ -456,8 +475,29 @@ public class Program {
 		ignoreList.setModel(ignoreListModel);
 		
 	}
-	public void collectStatistics(){
-		
+	public void collectStatistics(String filePath){
+		final String path = new String(filePath);
+		Thread thread = new Thread(new Runnable(){
+			public void run() {
+				try {
+					FileReader fReader = new FileReader(path);
+					BufferedReader bReader = new BufferedReader(fReader);
+					bReader.readLine(); // read the column name row
+					String line = "";
+					while((line=bReader.readLine())!=null){
+						
+						
+					}
+					
+				} catch (FileNotFoundException e) {
+					JOptionPane.showMessageDialog(frame.getContentPane(), "File not found","ERROR",JOptionPane.ERROR_MESSAGE);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}});
+		thread.start();
 	}
 	
 }
