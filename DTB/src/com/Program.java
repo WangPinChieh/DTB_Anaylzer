@@ -9,10 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
-
-import java.awt.BorderLayout;
-
 import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +23,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -38,6 +38,8 @@ import java.awt.SystemColor;
 import javax.swing.JTextField;
 import javax.swing.JList;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class Program {
 
@@ -62,7 +64,7 @@ public class Program {
 	private JScrollPane scrollPane_2;
 	private JList<Attribute> targetList;
 	private JList<Attribute> ignoreList;
-	private ArrayList<Attribute> originalDataAttributes;
+	private ArrayList<Attribute> dataAttributesType;
 
 	/**
 	 * Launch the application.
@@ -105,7 +107,8 @@ public class Program {
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
-				FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv only","csv");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						".csv only", "csv");
 				fileChooser.setFileFilter(filter);
 				int result = fileChooser.showOpenDialog(frame.getContentPane());
 				if (result == JFileChooser.APPROVE_OPTION) {
@@ -114,14 +117,16 @@ public class Program {
 						directoryPath = file.getParent();
 						filePath = file.getAbsolutePath();
 						filePathlbl.setText(filePath);
-						String fileExtension = filePath.substring(filePath.length()-3, filePath.length());
+						String fileExtension = filePath.substring(
+								filePath.length() - 3, filePath.length());
 						fileExtension = fileExtension.toLowerCase().trim();
-						if(fileExtension.equals("csv"))
-						{
+						if (fileExtension.equals("csv")) {
 							readDataToJTable(filePath);
-						}
-						else {
-							JOptionPane.showMessageDialog(frame.getContentPane(),"The file you choose is not .csv type!","ERROR",JOptionPane.ERROR_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(
+									frame.getContentPane(),
+									"The file you choose is not .csv type!",
+									"ERROR", JOptionPane.ERROR_MESSAGE);
 						}
 					} catch (Exception err) {
 						JOptionPane.showMessageDialog(frame.getContentPane(),
@@ -186,21 +191,40 @@ public class Program {
 		frame.getContentPane().add(lblDiscrete);
 
 		scrollPane = new JScrollPane();
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane.setBounds(24, 303, 135, 248);
 		frame.getContentPane().add(scrollPane);
 
 		discreteList = new JList<Attribute>();
+		discreteList.addListSelectionListener(new ListSelectionListener(){
+			public void valueChanged(ListSelectionEvent arg0) {
+				continuousList.clearSelection();
+				targetList.clearSelection();
+				ignoreList.clearSelection();
+				
+			}});
 		scrollPane.setViewportView(discreteList);
 
 		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane_1
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane_1
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane_1.setBounds(387, 303, 135, 248);
 		frame.getContentPane().add(scrollPane_1);
 
 		continuousList = new JList<Attribute>();
+		continuousList.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				targetList.clearSelection();
+				discreteList.clearSelection();
+				ignoreList.clearSelection();
+				
+			}
+		});
 		scrollPane_1.setViewportView(continuousList);
 
 		lblContinuous = new JLabel("Continuous");
@@ -216,36 +240,91 @@ public class Program {
 		frame.getContentPane().add(targetlbl);
 
 		scrollPane_2 = new JScrollPane();
-		scrollPane_2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane_2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane_2
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane_2
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane_2.setBounds(209, 242, 135, 64);
 		frame.getContentPane().add(scrollPane_2);
 
 		targetList = new JList<Attribute>();
+		targetList.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				continuousList.clearSelection();
+				discreteList.clearSelection();
+				ignoreList.clearSelection();
+			}
+		});
 		scrollPane_2.setViewportView(targetList);
-		
+
 		JScrollPane scrollPane_3 = new JScrollPane();
-		scrollPane_3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane_3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane_3
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane_3
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane_3.setBounds(209, 541, 135, 64);
 		frame.getContentPane().add(scrollPane_3);
-		
+
 		ignoreList = new JList<Attribute>();
+		ignoreList.addListSelectionListener(new ListSelectionListener(){
+			public void valueChanged(ListSelectionEvent arg0) {
+				continuousList.clearSelection();
+				discreteList.clearSelection();
+				targetList.clearSelection();
+				
+			}});
 		scrollPane_3.setViewportView(ignoreList);
-		
+
 		JLabel lblIgnoreAttribute = new JLabel("Ignore Attribute");
 		lblIgnoreAttribute.setForeground(Color.BLACK);
 		lblIgnoreAttribute.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblIgnoreAttribute.setBounds(227, 517, 124, 23);
 		frame.getContentPane().add(lblIgnoreAttribute);
+		
+		JButton leftMoveBtn = new JButton("\u2190");
+		leftMoveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				moveAllSelectedItems("left");
+			}
+		});
+		leftMoveBtn.setBounds(206, 398, 50, 50);
+		frame.getContentPane().add(leftMoveBtn);
+		
+		JButton upMoveBtn = new JButton("\u2191");
+		upMoveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				moveAllSelectedItems("up");
+			}
+		});
+		upMoveBtn.setBounds(255, 343, 50, 50);
+		frame.getContentPane().add(upMoveBtn);
+		
+		JButton rightMoveBtn = new JButton("\u2192");
+		rightMoveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				moveAllSelectedItems("right");
+			}
+		});
+		rightMoveBtn.setBounds(305, 398, 50, 50);
+		frame.getContentPane().add(rightMoveBtn);
+		
+		JButton downMoveBtn = new JButton("\u2193");
+		downMoveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				moveAllSelectedItems("down");
+			}
+		});
+		downMoveBtn.setBounds(255, 454, 50, 50);
+		frame.getContentPane().add(downMoveBtn);
 	}
+
 	public void readDataToJTable(String filePath) {
 		final String csvFile = new String(filePath);
 		Thread thread = new Thread(new Runnable() {
 			String line = "";
 			ArrayList<String[]> dataList = new ArrayList<String[]>();
-			ArrayList<Map<String, Integer>> dataStatistics = new ArrayList<Map<String,Integer>>();
-			int counter=0;
+			ArrayList<Map<String, Integer>> dataStatistics = new ArrayList<Map<String, Integer>>();
+			int counter = 0;
 
 			public void run() {
 				try {
@@ -253,61 +332,63 @@ public class Program {
 					BufferedReader bufferedReader = new BufferedReader(
 							fileReader);
 					String[] columnName = bufferedReader.readLine().split(",");
-					originalDataAttributes = new ArrayList<Attribute>();
-					for(int i=0;i<columnName.length;i++)
-					{
-						originalDataAttributes.add(new Attribute(columnName[i],i));
-						dataStatistics.add(new HashMap<String,Integer>());
+					dataAttributesType = new ArrayList<Attribute>();
+					for (int i = 0; i < columnName.length; i++) {
+						dataAttributesType.add(new Attribute(columnName[i],
+								i));
+						dataStatistics.add(new HashMap<String, Integer>());
 					}
 					while ((line = bufferedReader.readLine()) != null) {
 						String[] rowData = line.split(",");
 						dataList.add(rowData);
-						for(int i=0;i<rowData.length;i++)
-						{
+						for (int i = 0; i < rowData.length; i++) {
 							String key = rowData[i];
-							if(dataStatistics.get(i).containsKey(key))
-							{
+							if (dataStatistics.get(i).containsKey(key)) {
 								int value = dataStatistics.get(i).get(key);
 								value++;
 								dataStatistics.get(i).put(key, value);
-							}
-							else {
+							} else {
 								dataStatistics.get(i).put(key, 1);
 							}
 						}
 						counter++;
-						if(counter==200) break;
+						if (counter == 200)
+							break;
 					}
-					
+
 					fileReader.close();
 					bufferedReader.close();
-					
+
 					DefaultListModel<Attribute> continuousListModel = new DefaultListModel<Attribute>();
-					DefaultListModel<Attribute> discreteListModel = new DefaultListModel<Attribute>();;
-					
-					for(int i=0;i<dataStatistics.size();i++){
-						if(dataStatistics.get(i).size()>=5)
-						{
-							originalDataAttributes.get(i).setAttributeType(0);
-							continuousListModel.addElement(originalDataAttributes.get(i));
-						}
-						else {
-							originalDataAttributes.get(i).setAttributeType(1);
-							discreteListModel.addElement(originalDataAttributes.get(i));
+					DefaultListModel<Attribute> discreteListModel = new DefaultListModel<Attribute>();
+					DefaultListModel<Attribute> targetListModel = new DefaultListModel<Attribute>();
+					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
+					for (int i = 0; i < dataStatistics.size(); i++) {
+						if (dataStatistics.get(i).size() >= 5) {
+							dataAttributesType.get(i).setAttributeType(0);
+							continuousListModel
+									.addElement(dataAttributesType.get(i));
+						} else {
+							dataAttributesType.get(i).setAttributeType(1);
+							discreteListModel.addElement(dataAttributesType
+									.get(i));
 						}
 					}
 					continuousList.setModel(continuousListModel);
 					discreteList.setModel(discreteListModel);
+					targetList.setModel(targetListModel);
+					ignoreList.setModel(ignoreListModel);
 					
-					String[][] dataArray =  dataList.toArray(new String[0][]);
+					String[][] dataArray = dataList.toArray(new String[0][]);
 					DefaultTableModel model = new DefaultTableModel(dataArray,
 							columnName);
 					JTable table = new JTable(model);
 					table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-					JScrollPane jsPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-					tabbedPane.addTab("Preview top 200", new JScrollPane(jsPane));
-					
-				
+					JScrollPane jsPane = new JScrollPane(table,
+							JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+							JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+					tabbedPane.addTab("Preview top 200",
+							new JScrollPane(jsPane));
 
 				} catch (Exception e) {
 					final String errorMsg = new String(e.getMessage());
@@ -326,4 +407,58 @@ public class Program {
 		thread.start();
 
 	}
+	public void moveAllSelectedItems(String direction){
+		List<Attribute> selectedList = new ArrayList<Attribute>();
+		selectedList.addAll(targetList.getSelectedValuesList());
+		selectedList.addAll(ignoreList.getSelectedValuesList());
+		selectedList.addAll(continuousList.getSelectedValuesList());
+		selectedList.addAll(discreteList.getSelectedValuesList());
+		
+		DefaultListModel<Attribute> targetListModel = (DefaultListModel<Attribute>) targetList.getModel();
+		DefaultListModel<Attribute> ignoreListModel = (DefaultListModel<Attribute>) ignoreList.getModel();
+		DefaultListModel<Attribute> discreteListModel = (DefaultListModel<Attribute>) discreteList.getModel();
+		DefaultListModel<Attribute> continuousListModel = (DefaultListModel<Attribute>) continuousList.getModel();
+		for(Attribute attr : selectedList){
+			
+			if(targetListModel.contains(attr))
+				targetListModel.removeElement(attr);
+			else if(ignoreListModel.contains(attr))
+				ignoreListModel.removeElement(attr);
+			else if(continuousListModel.contains(attr))
+				continuousListModel.removeElement(attr);
+			else if(discreteListModel.contains(attr))
+				discreteListModel.removeElement(attr);
+			
+			switch(direction){
+			case "left":
+				discreteListModel.addElement(attr);
+				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(1);
+				break;
+			case "right":
+				continuousListModel.addElement(attr);
+				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(0);
+				break;
+			case "up":
+				targetListModel.addElement(attr);
+				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(2);
+				break;
+			case "down":
+				ignoreListModel.addElement(attr);
+				dataAttributesType.get(attr.getAttributeIndex()).setAttributeType(3);
+				break;
+			
+			}
+
+		}
+		discreteList.setModel(discreteListModel);
+		continuousList.setModel(continuousListModel);
+		targetList.setModel(targetListModel);
+		ignoreList.setModel(ignoreListModel);
+		
+	}
+	public void collectStatistics(){
+		
+	}
+	
 }
+
