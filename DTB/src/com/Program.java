@@ -45,6 +45,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
+import org.omg.CORBA.portable.ValueBase;
+
 public class Program {
 
 	private JFrame frame;
@@ -338,6 +340,15 @@ public class Program {
 		});
 		downMoveBtn.setBounds(255, 454, 50, 50);
 		frame.getContentPane().add(downMoveBtn);
+		
+		JButton btnCollect = new JButton("Collect");
+		btnCollect.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				collectStatistics();
+			}
+		});
+		btnCollect.setBounds(387, 582, 89, 23);
+		frame.getContentPane().add(btnCollect);
 	}
 
 	public void readTop200DataToJTable(String filePath) {
@@ -492,16 +503,18 @@ public class Program {
 					 fReader = new FileReader(filePath);
 					 bReader = new BufferedReader(fReader);
 					bReader.readLine(); // read the column name row
-					String[] line;
-					while((line=bReader.readLine().split(","))!=null){
-						for(int i=0;i<line.length;i++){
+					String[] splitLine;
+					String line;
+					while((line=bReader.readLine())!=null){
+						splitLine = line.split(",");
+						for(int i=0;i<splitLine.length;i++){
 							Attribute currentAttribute = allDataAttributes.get(i);
 							
 							if(currentAttribute.getAttributeType()==Attribute.IGNORE)
 								continue;
 							else if(currentAttribute.getAttributeType()==Attribute.CONTINUOUS)
 							{
-								String key = line[target.getAttributeIndex()];
+								String key = splitLine[target.getAttributeIndex()];
 								if(!isOneOfTargetValueAssigned)
 								{
 									oneOfTargetValue = key;
@@ -523,8 +536,8 @@ public class Program {
 							}
 							else if(currentAttribute.getAttributeType()==Attribute.DISCRETE)
 							{	
-								String targetValue = line[target.getAttributeIndex()];
-								String currentValue = line[currentAttribute.getAttributeIndex()];
+								String targetValue = splitLine[target.getAttributeIndex()];
+								String currentValue = splitLine[currentAttribute.getAttributeIndex()];
 								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
 								
 								if(!isOneOfTargetValueAssigned)
@@ -544,24 +557,29 @@ public class Program {
 								}
 								else
 								{
-									statisticsMap.put(currentValue, new Integer[2]);
+									statisticsMap.put(targetValue, new Integer[2]);
 									
 									if(targetValue == oneOfTargetValue)
 									{
-										statisticsMap.get(currentValue)[0]=1;
-										statisticsMap.get(currentValue)[1]=0;
+										Integer[] value = statisticsMap.get(targetValue);
+										value[0]=1;
+										value[1]=0;
+										statisticsMap.put(targetValue, value);
+										
 									}
 									else
 									{
-										statisticsMap.get(currentValue)[0]=0;
-										statisticsMap.get(currentValue)[1]=1;	
+										Integer[] value = statisticsMap.get(targetValue);
+										value[0]=0;
+										value[1]=1;
+										statisticsMap.put(targetValue, value);	
 									}
 										
 								}
 							}
 							else if(currentAttribute.getAttributeType()==Attribute.TARGET)
 							{
-								String targetValue = line[target.getAttributeIndex()];
+								String targetValue = splitLine[target.getAttributeIndex()];
 								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
 								
 								if(!isOneOfTargetValueAssigned)
@@ -570,12 +588,31 @@ public class Program {
 									isOneOfTargetValueAssigned=true;
 									System.out.println("One of target value is "+oneOfTargetValue+" assigned from TARGET");
 								}
+								
+								if(statisticsMap.containsKey(targetValue))
+								{
+									Integer[] value = statisticsMap.get(targetValue);
+									value[0]++;
+									statisticsMap.put(targetValue, value);
+								}
+								else {
+									statisticsMap.put(targetValue, new Integer[]{1});
+									
+								}
 							}
 							
 						}
-						
+						dataCounter++;
 					}
-					
+					for(Attribute attr : allDataAttributes){
+						if(attr.getAttributeType()==Attribute.DISCRETE)
+							System.out.println(String.format("Attribute Name: %s, Type: %s, Different Key: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().size()));
+						else if(attr.getAttributeType()==Attribute.CONTINUOUS)
+							System.out.println(String.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().get(0),attr.getStatistics().get(1)));
+						else if(attr.getAttributeType()==Attribute.TARGET)
+							System.out.println(String.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().get(0),attr.getStatistics().get(1)));
+					}
+					System.out.println("Data Counter: "+dataCounter);
 				} catch (FileNotFoundException e) {
 					JOptionPane.showMessageDialog(frame.getContentPane(), "File not found","ERROR",JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {
@@ -596,6 +633,5 @@ public class Program {
 			}});
 		thread.start();
 	}
-	
 }
 
