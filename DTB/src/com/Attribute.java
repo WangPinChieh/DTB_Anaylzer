@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Attribute {
+	public static final int CONTINUOUS=0;
+	public static final int DISCRETE=1;
+	public static final int TARGET=2;
+	public static final int IGNORE=3;
 	private String attributeName;
 	private int attributeIndex;
 	private int attributeType; // 0 for continuous, 1 for discrete, 2 for target, 4 for ignore

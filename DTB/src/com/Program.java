@@ -69,6 +69,9 @@ public class Program {
 	private JList<Attribute> targetList;
 	private JList<Attribute> ignoreList;
 	private ArrayList<Attribute> allDataAttributes;
+	private Attribute target=null;
+	private String oneOfTargetValue;
+	private boolean isOneOfTargetValueAssigned;
 
 	/**
 	 * Launch the application.
@@ -121,7 +124,7 @@ public class Program {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(572, 19, 526, 625);
 		frame.getContentPane().add(tabbedPane);
-
+		isOneOfTargetValueAssigned=false;
 		JButton btnBrowse = new JButton("Browse");
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -384,11 +387,11 @@ public class Program {
 					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
 					for (int i = 0; i < dataStatistics.size(); i++) {
 						if (dataStatistics.get(i).size() >= 5) {
-							allDataAttributes.get(i).setAttributeType(0);
+							allDataAttributes.get(i).setAttributeType(Attribute.CONTINUOUS);
 							continuousListModel
 									.addElement(allDataAttributes.get(i));
 						} else {
-							allDataAttributes.get(i).setAttributeType(1);
+							allDataAttributes.get(i).setAttributeType(Attribute.DISCRETE);
 							discreteListModel.addElement(allDataAttributes
 									.get(i));
 						}
@@ -451,19 +454,19 @@ public class Program {
 			switch(direction){
 			case "left":
 				discreteListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(1);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.DISCRETE);
 				break;
 			case "right":
 				continuousListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(0);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.CONTINUOUS);
 				break;
 			case "up":
 				targetListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(2);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.TARGET);
 				break;
 			case "down":
 				ignoreListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(3);
+				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.IGNORE);
 				break;
 			
 			}
@@ -475,17 +478,101 @@ public class Program {
 		ignoreList.setModel(ignoreListModel);
 		
 	}
-	public void collectStatistics(String filePath){
-		final String path = new String(filePath);
+	public void collectStatistics(){
+		for(Attribute attr : allDataAttributes){
+			if(attr.getAttributeType()==Attribute.TARGET)
+				 target = attr;
+		}
 		Thread thread = new Thread(new Runnable(){
 			public void run() {
+				FileReader fReader=null;
+				BufferedReader bReader=null;
+				int dataCounter=0;
 				try {
-					FileReader fReader = new FileReader(path);
-					BufferedReader bReader = new BufferedReader(fReader);
+					 fReader = new FileReader(filePath);
+					 bReader = new BufferedReader(fReader);
 					bReader.readLine(); // read the column name row
-					String line = "";
-					while((line=bReader.readLine())!=null){
-						
+					String[] line;
+					while((line=bReader.readLine().split(","))!=null){
+						for(int i=0;i<line.length;i++){
+							Attribute currentAttribute = allDataAttributes.get(i);
+							
+							if(currentAttribute.getAttributeType()==Attribute.IGNORE)
+								continue;
+							else if(currentAttribute.getAttributeType()==Attribute.CONTINUOUS)
+							{
+								String key = line[target.getAttributeIndex()];
+								if(!isOneOfTargetValueAssigned)
+								{
+									oneOfTargetValue = key;
+									isOneOfTargetValueAssigned=true;
+									System.out.println("One of target value is "+oneOfTargetValue+" assigned from CONTINUOUS");
+								}
+								
+								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
+								if(statisticsMap.containsKey(key))
+								{
+									Integer[] value = statisticsMap.get(key);
+									value[0]++;
+									statisticsMap.put(key, value);
+								}
+								else
+								{
+									statisticsMap.put(key, new Integer[]{1});
+								}
+							}
+							else if(currentAttribute.getAttributeType()==Attribute.DISCRETE)
+							{	
+								String targetValue = line[target.getAttributeIndex()];
+								String currentValue = line[currentAttribute.getAttributeIndex()];
+								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
+								
+								if(!isOneOfTargetValueAssigned)
+								{
+									oneOfTargetValue = targetValue;
+									isOneOfTargetValueAssigned=true;
+									System.out.println("One of target value is "+oneOfTargetValue+" assigned from DISCRETE");
+								}
+								
+								if(statisticsMap.containsKey(currentValue)){
+									Integer[] value = statisticsMap.get(currentValue);
+									if(targetValue == oneOfTargetValue)
+										value[0]++;
+									else
+										value[1]++;
+									statisticsMap.put(currentValue, value);
+								}
+								else
+								{
+									statisticsMap.put(currentValue, new Integer[2]);
+									
+									if(targetValue == oneOfTargetValue)
+									{
+										statisticsMap.get(currentValue)[0]=1;
+										statisticsMap.get(currentValue)[1]=0;
+									}
+									else
+									{
+										statisticsMap.get(currentValue)[0]=0;
+										statisticsMap.get(currentValue)[1]=1;	
+									}
+										
+								}
+							}
+							else if(currentAttribute.getAttributeType()==Attribute.TARGET)
+							{
+								String targetValue = line[target.getAttributeIndex()];
+								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
+								
+								if(!isOneOfTargetValueAssigned)
+								{
+									oneOfTargetValue = targetValue;
+									isOneOfTargetValueAssigned=true;
+									System.out.println("One of target value is "+oneOfTargetValue+" assigned from TARGET");
+								}
+							}
+							
+						}
 						
 					}
 					
@@ -494,6 +581,16 @@ public class Program {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
+				}
+				finally{
+					try {
+						fReader.close();
+						bReader.close();
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
+					}
+					
+					
 				}
 				
 			}});
