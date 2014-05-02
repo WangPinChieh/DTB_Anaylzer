@@ -533,12 +533,19 @@ public class Program {
 									isOneOfTargetValueAssigned = true;
 									System.out.println("One of target value is "+ oneOfTargetValue+ " assigned from CONTINUOUS");
 								}
-								Map<String, List<Integer>> statisticsMap = currentAttribute.getContinuousStatistics();
+								Map<String, List<Double>> statisticsMap = currentAttribute.getContinuousStatistics();
+								double parsedDouble=0.0;
+								try{
+									parsedDouble = Double.parseDouble(currentValue);
+								}catch(Exception e){
+									System.out.println(e.getMessage());
+								}
 								if (statisticsMap.containsKey(key)) {
-									statisticsMap.get(key).add(Integer.parseInt(currentValue));
+									statisticsMap.get(key).add(parsedDouble);
 								} else {
-									List<Integer> list =  new ArrayList<Integer>();
-									list.add(Integer.parseInt(currentValue));
+									List<Double> list =  new ArrayList<Double>();
+										list.add(parsedDouble);
+									
 									statisticsMap.put(key,list);
 								}
 								
@@ -608,16 +615,16 @@ public class Program {
 					for (Attribute attr : allDataAttributes) {
 						if (attr.getAttributeType() == Attribute.DISCRETE)
 							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, Different Key: %d,",
+									.format("Attribute Name: %s, Type: %s, Different Key: %d, IV: %.3f, Importance: %.3f",
 											attr.getAttributeName(), attr
 													.getAttributeType(), attr
-													.getDiscreteStatistics().size())+" IV: "+attr.getAttributeIV());
+													.getDiscreteStatistics().size(),attr.getAttributeIV(),attr.getAttributeImportance()));
 						else if (attr.getAttributeType() == Attribute.CONTINUOUS)
 							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, 0 count: %d",
+									.format("Attribute Name: %s, Type: %s, 0 count: %d, Importance: %.3f",
 											attr.getAttributeName(), attr
 													.getAttributeType(), attr
-													.getContinuousStatistics().get(oneOfTargetValue).size()));
+													.getContinuousStatistics().get(oneOfTargetValue).size(),attr.getAttributeImportance()));
 						else if (attr.getAttributeType() == Attribute.TARGET)
 							System.out.println(String
 									.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ",
