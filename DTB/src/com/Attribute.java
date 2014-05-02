@@ -1,5 +1,6 @@
 package com;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class Attribute {
 	public Map<String, Integer[]> getDiscreteStatistics() {
 		if(discreteStatistics == null && (attributeType==Attribute.DISCRETE || attributeType==Attribute.TARGET))
 			discreteStatistics = new HashMap<String, Integer[]>();
-		
+
 		return discreteStatistics;
 	}
 
@@ -57,5 +58,45 @@ public class Attribute {
 	public int getTargetBCount(){
 		String[] key = discreteStatistics.keySet().toArray(new String[0]);
 		return discreteStatistics.get(key[1])[0];
+	}
+	
+	public double getAttributeIV(){
+		int targetACount=0;
+		int targetBCount=0;
+		List<Double> IVList = new ArrayList<Double>();
+		
+		if(attributeType == Attribute.DISCRETE)
+		{
+			for(String key : discreteStatistics.keySet()){
+				targetACount+=discreteStatistics.get(key)[0];
+				targetBCount+=discreteStatistics.get(key)[1];
+			}
+			if(targetACount<=targetBCount) // means target A is an important target
+			{
+				System.out.println("Target A is an importatn target");
+				for(String key : discreteStatistics.keySet()){
+					double targetAPercentage = (discreteStatistics.get(key)[0]/targetACount);
+					double targetBPercentage = (discreteStatistics.get(key)[1]/targetBCount);
+					double woe = Math.log(targetBPercentage/targetAPercentage);
+					IVList.add((targetBPercentage-targetAPercentage)*woe);
+				}
+			}
+			else {
+				System.out.println("Target B is an importatn target");
+				for(String key : discreteStatistics.keySet()){
+					double targetAPercentage = (discreteStatistics.get(key)[0]*1.0/targetACount);
+					double targetBPercentage = (discreteStatistics.get(key)[1]*1.0/targetBCount);
+					double woe = Math.log(targetAPercentage/targetBPercentage);
+					IVList.add((targetAPercentage-targetBPercentage) * woe);
+				}
+			}
+			double sum=0;
+			for(Double iv:IVList) sum+=iv;
+			
+			return sum;		
+		}
+		
+		else		
+		return 0.0;
 	}
 }

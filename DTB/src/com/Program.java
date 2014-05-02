@@ -398,7 +398,7 @@ public class Program {
 					DefaultListModel<Attribute> targetListModel = new DefaultListModel<Attribute>();
 					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
 					for (int i = 0; i < dataStatistics.size(); i++) {
-						if (dataStatistics.get(i).size() >= 5) {
+						if (dataStatistics.get(i).size() > 5) {
 							allDataAttributes.get(i).setAttributeType(
 									Attribute.CONTINUOUS);
 							continuousListModel.addElement(allDataAttributes
@@ -556,7 +556,7 @@ public class Program {
 								if (statisticsMap.containsKey(currentValue)) {
 									Integer[] value = statisticsMap
 											.get(currentValue);
-									if (targetValue == oneOfTargetValue)
+									if (targetValue.equals(oneOfTargetValue))
 										value[0]++;
 									else
 										value[1]++;
@@ -565,7 +565,7 @@ public class Program {
 									statisticsMap.put(currentValue,
 											new Integer[2]);
 
-									if (targetValue == oneOfTargetValue) {
+									if (targetValue.equals(oneOfTargetValue)) {
 										Integer[] value = statisticsMap
 												.get(currentValue);
 										value[0] = 1;
@@ -608,10 +608,10 @@ public class Program {
 					for (Attribute attr : allDataAttributes) {
 						if (attr.getAttributeType() == Attribute.DISCRETE)
 							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, Different Key: %d ",
+									.format("Attribute Name: %s, Type: %s, Different Key: %d,",
 											attr.getAttributeName(), attr
 													.getAttributeType(), attr
-													.getDiscreteStatistics().size()));
+													.getDiscreteStatistics().size())+" IV: "+attr.getAttributeIV());
 						else if (attr.getAttributeType() == Attribute.CONTINUOUS)
 							System.out.println(String
 									.format("Attribute Name: %s, Type: %s, 0 count: %d",
