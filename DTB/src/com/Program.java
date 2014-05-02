@@ -71,7 +71,7 @@ public class Program {
 	private JList<Attribute> targetList;
 	private JList<Attribute> ignoreList;
 	private ArrayList<Attribute> allDataAttributes;
-	private Attribute target=null;
+	private Attribute target = null;
 	private String oneOfTargetValue;
 	private boolean isOneOfTargetValueAssigned;
 
@@ -126,7 +126,7 @@ public class Program {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(572, 19, 526, 625);
 		frame.getContentPane().add(tabbedPane);
-		isOneOfTargetValueAssigned=false;
+		isOneOfTargetValueAssigned = false;
 		JButton btnBrowse = new JButton("Browse");
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -223,13 +223,14 @@ public class Program {
 		frame.getContentPane().add(scrollPane);
 
 		discreteList = new JList<Attribute>();
-		discreteList.addListSelectionListener(new ListSelectionListener(){
+		discreteList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
 				continuousList.clearSelection();
 				targetList.clearSelection();
 				ignoreList.clearSelection();
-				
-			}});
+
+			}
+		});
 		scrollPane.setViewportView(discreteList);
 
 		scrollPane_1 = new JScrollPane();
@@ -246,7 +247,7 @@ public class Program {
 				targetList.clearSelection();
 				discreteList.clearSelection();
 				ignoreList.clearSelection();
-				
+
 			}
 		});
 		scrollPane_1.setViewportView(continuousList);
@@ -290,13 +291,14 @@ public class Program {
 		frame.getContentPane().add(scrollPane_3);
 
 		ignoreList = new JList<Attribute>();
-		ignoreList.addListSelectionListener(new ListSelectionListener(){
+		ignoreList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
 				continuousList.clearSelection();
 				discreteList.clearSelection();
 				targetList.clearSelection();
-				
-			}});
+
+			}
+		});
 		scrollPane_3.setViewportView(ignoreList);
 
 		JLabel lblIgnoreAttribute = new JLabel("Ignore Attribute");
@@ -304,7 +306,7 @@ public class Program {
 		lblIgnoreAttribute.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblIgnoreAttribute.setBounds(227, 517, 124, 23);
 		frame.getContentPane().add(lblIgnoreAttribute);
-		
+
 		JButton leftMoveBtn = new JButton("\u2190");
 		leftMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -313,7 +315,7 @@ public class Program {
 		});
 		leftMoveBtn.setBounds(206, 398, 50, 50);
 		frame.getContentPane().add(leftMoveBtn);
-		
+
 		JButton upMoveBtn = new JButton("\u2191");
 		upMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -322,7 +324,7 @@ public class Program {
 		});
 		upMoveBtn.setBounds(255, 343, 50, 50);
 		frame.getContentPane().add(upMoveBtn);
-		
+
 		JButton rightMoveBtn = new JButton("\u2192");
 		rightMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -331,7 +333,7 @@ public class Program {
 		});
 		rightMoveBtn.setBounds(305, 398, 50, 50);
 		frame.getContentPane().add(rightMoveBtn);
-		
+
 		JButton downMoveBtn = new JButton("\u2193");
 		downMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -340,7 +342,7 @@ public class Program {
 		});
 		downMoveBtn.setBounds(255, 454, 50, 50);
 		frame.getContentPane().add(downMoveBtn);
-		
+
 		JButton btnCollect = new JButton("Collect");
 		btnCollect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -367,8 +369,7 @@ public class Program {
 					String[] columnName = bufferedReader.readLine().split(",");
 					allDataAttributes = new ArrayList<Attribute>();
 					for (int i = 0; i < columnName.length; i++) {
-						allDataAttributes.add(new Attribute(columnName[i],
-								i));
+						allDataAttributes.add(new Attribute(columnName[i], i));
 						dataStatistics.add(new HashMap<String, Integer>());
 					}
 					while ((line = bufferedReader.readLine()) != null) {
@@ -398,11 +399,13 @@ public class Program {
 					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
 					for (int i = 0; i < dataStatistics.size(); i++) {
 						if (dataStatistics.get(i).size() >= 5) {
-							allDataAttributes.get(i).setAttributeType(Attribute.CONTINUOUS);
-							continuousListModel
-									.addElement(allDataAttributes.get(i));
+							allDataAttributes.get(i).setAttributeType(
+									Attribute.CONTINUOUS);
+							continuousListModel.addElement(allDataAttributes
+									.get(i));
 						} else {
-							allDataAttributes.get(i).setAttributeType(Attribute.DISCRETE);
+							allDataAttributes.get(i).setAttributeType(
+									Attribute.DISCRETE);
 							discreteListModel.addElement(allDataAttributes
 									.get(i));
 						}
@@ -411,7 +414,7 @@ public class Program {
 					discreteList.setModel(discreteListModel);
 					targetList.setModel(targetListModel);
 					ignoreList.setModel(ignoreListModel);
-					
+
 					String[][] dataArray = dataList.toArray(new String[0][]);
 					DefaultTableModel model = new DefaultTableModel(dataArray,
 							columnName);
@@ -440,46 +443,55 @@ public class Program {
 		thread.start();
 
 	}
-	public void moveAllSelectedItems(String direction){
+
+	public void moveAllSelectedItems(String direction) {
 		List<Attribute> selectedList = new ArrayList<Attribute>();
 		selectedList.addAll(targetList.getSelectedValuesList());
 		selectedList.addAll(ignoreList.getSelectedValuesList());
 		selectedList.addAll(continuousList.getSelectedValuesList());
 		selectedList.addAll(discreteList.getSelectedValuesList());
-		
-		DefaultListModel<Attribute> targetListModel = (DefaultListModel<Attribute>) targetList.getModel();
-		DefaultListModel<Attribute> ignoreListModel = (DefaultListModel<Attribute>) ignoreList.getModel();
-		DefaultListModel<Attribute> discreteListModel = (DefaultListModel<Attribute>) discreteList.getModel();
-		DefaultListModel<Attribute> continuousListModel = (DefaultListModel<Attribute>) continuousList.getModel();
-		for(Attribute attr : selectedList){
-			
-			if(targetListModel.contains(attr))
+
+		DefaultListModel<Attribute> targetListModel = (DefaultListModel<Attribute>) targetList
+				.getModel();
+		DefaultListModel<Attribute> ignoreListModel = (DefaultListModel<Attribute>) ignoreList
+				.getModel();
+		DefaultListModel<Attribute> discreteListModel = (DefaultListModel<Attribute>) discreteList
+				.getModel();
+		DefaultListModel<Attribute> continuousListModel = (DefaultListModel<Attribute>) continuousList
+				.getModel();
+		for (Attribute attr : selectedList) {
+
+			if (targetListModel.contains(attr))
 				targetListModel.removeElement(attr);
-			else if(ignoreListModel.contains(attr))
+			else if (ignoreListModel.contains(attr))
 				ignoreListModel.removeElement(attr);
-			else if(continuousListModel.contains(attr))
+			else if (continuousListModel.contains(attr))
 				continuousListModel.removeElement(attr);
-			else if(discreteListModel.contains(attr))
+			else if (discreteListModel.contains(attr))
 				discreteListModel.removeElement(attr);
-			
-			switch(direction){
+
+			switch (direction) {
 			case "left":
 				discreteListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.DISCRETE);
+				allDataAttributes.get(attr.getAttributeIndex())
+						.setAttributeType(Attribute.DISCRETE);
 				break;
 			case "right":
 				continuousListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.CONTINUOUS);
+				allDataAttributes.get(attr.getAttributeIndex())
+						.setAttributeType(Attribute.CONTINUOUS);
 				break;
 			case "up":
 				targetListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.TARGET);
+				allDataAttributes.get(attr.getAttributeIndex())
+						.setAttributeType(Attribute.TARGET);
 				break;
 			case "down":
 				ignoreListModel.addElement(attr);
-				allDataAttributes.get(attr.getAttributeIndex()).setAttributeType(Attribute.IGNORE);
+				allDataAttributes.get(attr.getAttributeIndex())
+						.setAttributeType(Attribute.IGNORE);
 				break;
-			
+
 			}
 
 		}
@@ -487,151 +499,156 @@ public class Program {
 		continuousList.setModel(continuousListModel);
 		targetList.setModel(targetListModel);
 		ignoreList.setModel(ignoreListModel);
-		
+
 	}
-	public void collectStatistics(){
-		for(Attribute attr : allDataAttributes){
-			if(attr.getAttributeType()==Attribute.TARGET)
-				 target = attr;
+
+	public void collectStatistics() {
+		for (Attribute attr : allDataAttributes) {
+			if (attr.getAttributeType() == Attribute.TARGET)
+				target = attr;
 		}
-		Thread thread = new Thread(new Runnable(){
+		Thread thread = new Thread(new Runnable() {
 			public void run() {
-				FileReader fReader=null;
-				BufferedReader bReader=null;
-				int dataCounter=0;
+				FileReader fReader = null;
+				BufferedReader bReader = null;
+				int dataCounter = 0;
 				try {
-					 fReader = new FileReader(filePath);
-					 bReader = new BufferedReader(fReader);
+					fReader = new FileReader(filePath);
+					bReader = new BufferedReader(fReader);
 					bReader.readLine(); // read the column name row
 					String[] splitLine;
 					String line;
-					while((line=bReader.readLine())!=null){
+					while ((line = bReader.readLine()) != null) {
 						splitLine = line.split(",");
-						for(int i=0;i<splitLine.length;i++){
+						for (int i = 0; i < splitLine.length; i++) {
 							Attribute currentAttribute = allDataAttributes.get(i);
-							
-							if(currentAttribute.getAttributeType()==Attribute.IGNORE)
+							String currentValue = splitLine[currentAttribute.getAttributeIndex()];
+							if (currentAttribute.getAttributeType() == Attribute.IGNORE)
 								continue;
-							else if(currentAttribute.getAttributeType()==Attribute.CONTINUOUS)
-							{
+							
+							else if (currentAttribute.getAttributeType() == Attribute.CONTINUOUS) {
 								String key = splitLine[target.getAttributeIndex()];
-								if(!isOneOfTargetValueAssigned)
-								{
+								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = key;
-									isOneOfTargetValueAssigned=true;
-									System.out.println("One of target value is "+oneOfTargetValue+" assigned from CONTINUOUS");
+									isOneOfTargetValueAssigned = true;
+									System.out.println("One of target value is "+ oneOfTargetValue+ " assigned from CONTINUOUS");
+								}
+								Map<String, List<Integer>> statisticsMap = currentAttribute.getContinuousStatistics();
+								if (statisticsMap.containsKey(key)) {
+									statisticsMap.get(key).add(Integer.parseInt(currentValue));
+								} else {
+									List<Integer> list =  new ArrayList<Integer>();
+									list.add(Integer.parseInt(currentValue));
+									statisticsMap.put(key,list);
 								}
 								
-								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
-								if(statisticsMap.containsKey(key))
-								{
-									Integer[] value = statisticsMap.get(key);
-									value[0]++;
-									statisticsMap.put(key, value);
-								}
-								else
-								{
-									statisticsMap.put(key, new Integer[]{1});
-								}
-							}
-							else if(currentAttribute.getAttributeType()==Attribute.DISCRETE)
-							{	
+							} else if (currentAttribute.getAttributeType() == Attribute.DISCRETE) {
 								String targetValue = splitLine[target.getAttributeIndex()];
-								String currentValue = splitLine[currentAttribute.getAttributeIndex()];
-								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
-								
-								if(!isOneOfTargetValueAssigned)
-								{
+								currentValue = splitLine[currentAttribute.getAttributeIndex()];
+								Map<String, Integer[]> statisticsMap = currentAttribute.getDiscreteStatistics();
+
+								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = targetValue;
-									isOneOfTargetValueAssigned=true;
-									System.out.println("One of target value is "+oneOfTargetValue+" assigned from DISCRETE");
+									isOneOfTargetValueAssigned = true;
+									System.out.println("One of target value is "+ oneOfTargetValue + " assigned from DISCRETE");
 								}
-								
-								if(statisticsMap.containsKey(currentValue)){
-									Integer[] value = statisticsMap.get(currentValue);
-									if(targetValue == oneOfTargetValue)
+
+								if (statisticsMap.containsKey(currentValue)) {
+									Integer[] value = statisticsMap
+											.get(currentValue);
+									if (targetValue == oneOfTargetValue)
 										value[0]++;
 									else
 										value[1]++;
 									statisticsMap.put(currentValue, value);
-								}
-								else
-								{
-									statisticsMap.put(targetValue, new Integer[2]);
-									
-									if(targetValue == oneOfTargetValue)
-									{
-										Integer[] value = statisticsMap.get(targetValue);
-										value[0]=1;
-										value[1]=0;
-										statisticsMap.put(targetValue, value);
-										
+								} else {
+									statisticsMap.put(currentValue,
+											new Integer[2]);
+
+									if (targetValue == oneOfTargetValue) {
+										Integer[] value = statisticsMap
+												.get(currentValue);
+										value[0] = 1;
+										value[1] = 0;
+										statisticsMap.put(currentValue, value);
+
+									} else {
+										Integer[] value = statisticsMap
+												.get(currentValue);
+										value[0] = 0;
+										value[1] = 1;
+										statisticsMap.put(currentValue, value);
 									}
-									else
-									{
-										Integer[] value = statisticsMap.get(targetValue);
-										value[0]=0;
-										value[1]=1;
-										statisticsMap.put(targetValue, value);	
-									}
-										
+
 								}
-							}
-							else if(currentAttribute.getAttributeType()==Attribute.TARGET)
-							{
+								
+							} else if (currentAttribute.getAttributeType() == Attribute.TARGET) {
 								String targetValue = splitLine[target.getAttributeIndex()];
-								Map<String, Integer[]> statisticsMap = currentAttribute.getStatistics();
-								
-								if(!isOneOfTargetValueAssigned)
-								{
+								Map<String, Integer[]> statisticsMap = currentAttribute.getDiscreteStatistics();
+
+								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = targetValue;
-									isOneOfTargetValueAssigned=true;
-									System.out.println("One of target value is "+oneOfTargetValue+" assigned from TARGET");
+									isOneOfTargetValueAssigned = true;
+									System.out.println("One of target value is "+ oneOfTargetValue+ " assigned from TARGET");
 								}
-								
-								if(statisticsMap.containsKey(targetValue))
-								{
+
+								if (statisticsMap.containsKey(targetValue)) {
 									Integer[] value = statisticsMap.get(targetValue);
 									value[0]++;
 									statisticsMap.put(targetValue, value);
-								}
-								else {
-									statisticsMap.put(targetValue, new Integer[]{1});
-									
+								} else {
+									statisticsMap.put(targetValue,new Integer[] { 1 });
+
 								}
 							}
-							
+
 						}
 						dataCounter++;
 					}
-					for(Attribute attr : allDataAttributes){
-						if(attr.getAttributeType()==Attribute.DISCRETE)
-							System.out.println(String.format("Attribute Name: %s, Type: %s, Different Key: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().size()));
-						else if(attr.getAttributeType()==Attribute.CONTINUOUS)
-							System.out.println(String.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().get(0),attr.getStatistics().get(1)));
-						else if(attr.getAttributeType()==Attribute.TARGET)
-							System.out.println(String.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ", attr.getAttributeName(),attr.getAttributeType(),attr.getStatistics().get(0),attr.getStatistics().get(1)));
+					for (Attribute attr : allDataAttributes) {
+						if (attr.getAttributeType() == Attribute.DISCRETE)
+							System.out.println(String
+									.format("Attribute Name: %s, Type: %s, Different Key: %d ",
+											attr.getAttributeName(), attr
+													.getAttributeType(), attr
+													.getDiscreteStatistics().size()));
+						else if (attr.getAttributeType() == Attribute.CONTINUOUS)
+							System.out.println(String
+									.format("Attribute Name: %s, Type: %s, 0 count: %d",
+											attr.getAttributeName(), attr
+													.getAttributeType(), attr
+													.getContinuousStatistics().get(oneOfTargetValue).size()));
+						else if (attr.getAttributeType() == Attribute.TARGET)
+							System.out.println(String
+									.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ",
+											attr.getAttributeName(), attr
+													.getAttributeType(), attr
+													.getTargetACount(),
+											attr.getTargetBCount()));
 					}
-					System.out.println("Data Counter: "+dataCounter);
+					System.out.println("Data Counter: " + dataCounter);
 				} catch (FileNotFoundException e) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "File not found","ERROR",JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(frame.getContentPane(),
+							"File not found", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
-				}
-				finally{
+					JOptionPane.showMessageDialog(frame.getContentPane(),
+							e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+				} finally {
 					try {
 						fReader.close();
 						bReader.close();
 					} catch (IOException e) {
-						JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(),
+								e.getMessage(), "ERROR",
+								JOptionPane.ERROR_MESSAGE);
 					}
-					
-					
+
 				}
-				
-			}});
+
+			}
+		});
 		thread.start();
 	}
 }
-
