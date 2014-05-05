@@ -614,24 +614,32 @@ public class Program {
 					}
 					for (Attribute attr : allDataAttributes) {
 						if (attr.getAttributeType() == Attribute.DISCRETE)
+						{
+							int targetACount=0;
+							int targetBCount=0;
+							String[] key = target.getDiscreteStatistics().keySet().toArray(new String[0]);
+							targetACount = target.getDiscreteStatistics().get(key[0])[0];
+							targetBCount = target.getDiscreteStatistics().get(key[1])[0];
+							
 							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, Different Key: %d, IV: %.3f, Importance: %.3f",
+									.format("Attribute Name: %s, Type: %s, Different Key: %d, IV: %.3f, Importance: %.3f, Gain Ratio: %.3f",
 											attr.getAttributeName(), attr
 													.getAttributeType(), attr
-													.getDiscreteStatistics().size(),attr.getAttributeIV(),attr.getAttributeImportance()));
-						else if (attr.getAttributeType() == Attribute.CONTINUOUS)
-							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, 0 count: %d, Importance: %.3f",
-											attr.getAttributeName(), attr
-													.getAttributeType(), attr
-													.getContinuousStatistics().get(oneOfTargetValue).size(),attr.getAttributeImportance()));
-						else if (attr.getAttributeType() == Attribute.TARGET)
-							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ",
-											attr.getAttributeName(), attr
-													.getAttributeType(), attr
-													.getTargetACount(),
-											attr.getTargetBCount()));
+													.getDiscreteStatistics().size(),attr.getAttributeIV(),attr.getAttributeImportance(),attr.getAttributeGainRatio(targetACount,targetBCount)));
+						}
+//							else if (attr.getAttributeType() == Attribute.CONTINUOUS)
+//							System.out.println(String
+//									.format("Attribute Name: %s, Type: %s, 0 count: %d, Importance: %.3f",
+//											attr.getAttributeName(), attr
+//													.getAttributeType(), attr
+//													.getContinuousStatistics().get(oneOfTargetValue).size(),attr.getAttributeImportance()));
+//						else if (attr.getAttributeType() == Attribute.TARGET)
+//							System.out.println(String
+//									.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ",
+//											attr.getAttributeName(), attr
+//													.getAttributeType(), attr
+//													.getTargetACount(),
+//											attr.getTargetBCount()));
 					}
 					System.out.println("Data Counter: " + dataCounter);
 				} catch (FileNotFoundException e) {

@@ -14,6 +14,8 @@ public class Attribute {
 	protected String attributeName;
 	private int attributeIndex;
 	private int attributeType; // 0 for continuous, 1 for discrete, 2 for target, 4 for ignore
+	private int totalTargetA;
+	private int totalTargetB;
 	private Map<String, List<Double>> continuousStatistics; 
 	private Map<String, Integer[]> discreteStatistics; 
 	
@@ -52,14 +54,20 @@ public class Attribute {
 	public String toString(){
 		return attributeName;
 	}
-	public int getTargetACount(){
+	private int getTargetACount(){
 		String[] keys = discreteStatistics.keySet().toArray(new String[0]);
 		return discreteStatistics.get(keys[0])[0];
 	}
-	public int getTargetBCount(){
+	
+	private int getTargetBCount(){
 		String[] keys = discreteStatistics.keySet().toArray(new String[0]);
 		return discreteStatistics.get(keys[1])[0];
 	}
+	
+	public double getTargetInfo(){
+		return getInfo(getTargetACount(),getTargetACount());
+	}
+	
 	
 	public double getAttributeIV(){
 		int targetACount=0;
@@ -76,8 +84,9 @@ public class Attribute {
 			{
 				System.out.println("Target A is an importatn target");
 				for(String key : discreteStatistics.keySet()){
-					double targetAPercentage = (discreteStatistics.get(key)[0]/targetACount);
-					double targetBPercentage = (discreteStatistics.get(key)[1]/targetBCount);
+					double targetAPercentage = (discreteStatistics.get(key)[0]*1.0/targetACount);
+					double targetBPercentage = (discreteStatistics.get(key)[1]*1.0/targetBCount);
+					if(targetAPercentage==0 || targetBPercentage==0) continue;
 					double woe = Math.log(targetBPercentage/targetAPercentage);
 					IVList.add((targetBPercentage-targetAPercentage)*woe);
 				}
@@ -173,5 +182,63 @@ public class Attribute {
 		else return 0.0;
 		
 		
+	}
+
+	public double getAttributeGainRatio(int targetACount, int targetBCount){
+		double gain;
+		double attrInfo;
+		double Info;
+		double intrinsicValue;
+		double gainRatio;
+		totalTargetA = targetACount;
+		totalTargetB = targetBCount;
+		if(attributeType==Attribute.DISCRETE)
+		{
+			attrInfo = getAttributeInfo();
+			Info = getInfo(targetACount, targetBCount);
+			gain = Info - attrInfo;
+			intrinsicValue =  getIntrinsicValue();
+			gainRatio = gain / intrinsicValue;
+			return gainRatio;
+		}
+		else return 0.0;
+	}
+	private double getIntrinsicValue(){
+		List<Integer> list = new ArrayList<Integer>();
+		int numOfData = 0;
+		double intrinsicValue=0.0;
+		for(String key:discreteStatistics.keySet()){
+			list.add(discreteStatistics.get(key)[0]+discreteStatistics.get(key)[1]);
+		}
+		for(int i : list){
+			numOfData+=i;
+		}
+		for(int i:list)
+		{
+			intrinsicValue += -(i*1.0/numOfData) * (Math.log(i*1.0/numOfData)/Math.log(2));
+		}
+		
+		return intrinsicValue;
+	}
+	private double getAttributeInfo(){
+		double attributeInfo=0;
+		for(String key : discreteStatistics.keySet())
+		{
+			int numTargetA = discreteStatistics.get(key)[0];
+			int numTargetB = discreteStatistics.get(key)[1];
+			int numTotalData = totalTargetA+totalTargetB;
+			int numCurrentTotalData = numTargetA+numTargetB;
+			attributeInfo+=(numCurrentTotalData*1.0/numTotalData)*getInfo(numTargetA, numTargetB);
+		}
+		return attributeInfo;
+	}
+	public static double getInfo(int number1, int number2){
+		if(number1==0 || number2==0) return 0.0;
+		
+		double answer;
+		double prob1 = number1*1.0/(number1+number2);
+		double prob2 = number2*1.0/(number1+number2);
+		answer = -(prob1) * (Math.log(prob1)/Math.log(2)) - (prob2) * (Math.log(prob2)/Math.log(2));
+		return answer;
 	}
 }
