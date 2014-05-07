@@ -82,7 +82,6 @@ public class Attribute {
 			}
 			if(targetACount<=targetBCount) // means target A is an important target
 			{
-				System.out.println("Target A is an importatn target");
 				for(String key : discreteStatistics.keySet()){
 					double targetAPercentage = (discreteStatistics.get(key)[0]*1.0/targetACount);
 					double targetBPercentage = (discreteStatistics.get(key)[1]*1.0/targetBCount);
@@ -92,7 +91,6 @@ public class Attribute {
 				}
 			}
 			else {
-				System.out.println("Target B is an importatn target");
 				for(String key : discreteStatistics.keySet()){
 					double targetAPercentage = (discreteStatistics.get(key)[0]*1.0/targetACount);
 					double targetBPercentage = (discreteStatistics.get(key)[1]*1.0/targetBCount);

@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JButton;
@@ -17,6 +18,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.Utilities;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -44,6 +47,7 @@ import javax.swing.JList;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.xml.crypto.Data;
 
 import org.omg.CORBA.portable.ValueBase;
 
@@ -58,8 +62,6 @@ public class Program {
 	private String filePath;
 	private JLabel lblSetUpAttributes;
 	private JLabel label;
-	private JLabel lblNewLabel;
-	private JTextField numberOfDistinghushValueTxt;
 	private JScrollPane scrollPane;
 	private JList<Attribute> discreteList;
 	private JLabel lblDiscrete;
@@ -74,6 +76,11 @@ public class Program {
 	private Attribute target = null;
 	private String oneOfTargetValue;
 	private boolean isOneOfTargetValueAssigned;
+	private int targetACount=0; // total number of data belong to target A
+	private int targetBCount=0; // total number of data belong to target B
+	private JLabel statusLabel;
+	private JButton btnCollect; 
+	private JLabel progressBarLabel;
 
 	/**
 	 * Launch the application.
@@ -190,28 +197,10 @@ public class Program {
 		label.setBounds(10, 111, 511, 14);
 		frame.getContentPane().add(label);
 
-		lblNewLabel = new JLabel("Classify attributes with");
-		lblNewLabel.setBounds(24, 189, 145, 14);
-		frame.getContentPane().add(lblNewLabel);
-
-		numberOfDistinghushValueTxt = new JTextField();
-		numberOfDistinghushValueTxt.setBounds(170, 186, 46, 20);
-		frame.getContentPane().add(numberOfDistinghushValueTxt);
-		numberOfDistinghushValueTxt.setColumns(10);
-
-		JLabel lblDistinguishValueAs = new JLabel(
-				"distinguish value as numeric attribute");
-		lblDistinguishValueAs.setBounds(226, 189, 237, 14);
-		frame.getContentPane().add(lblDistinguishValueAs);
-
-		JButton btnSet = new JButton("Set");
-		btnSet.setBounds(455, 185, 89, 23);
-		frame.getContentPane().add(btnSet);
-
 		lblDiscrete = new JLabel("Discrete");
 		lblDiscrete.setForeground(Color.BLACK);
 		lblDiscrete.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		lblDiscrete.setBounds(65, 283, 61, 23);
+		lblDiscrete.setBounds(65, 249, 61, 23);
 		frame.getContentPane().add(lblDiscrete);
 
 		scrollPane = new JScrollPane();
@@ -219,7 +208,7 @@ public class Program {
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(24, 303, 135, 248);
+		scrollPane.setBounds(24, 269, 135, 248);
 		frame.getContentPane().add(scrollPane);
 
 		discreteList = new JList<Attribute>();
@@ -238,7 +227,7 @@ public class Program {
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane_1
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane_1.setBounds(387, 303, 135, 248);
+		scrollPane_1.setBounds(387, 269, 135, 248);
 		frame.getContentPane().add(scrollPane_1);
 
 		continuousList = new JList<Attribute>();
@@ -255,13 +244,13 @@ public class Program {
 		lblContinuous = new JLabel("Continuous");
 		lblContinuous.setForeground(Color.BLACK);
 		lblContinuous.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		lblContinuous.setBounds(420, 283, 94, 23);
+		lblContinuous.setBounds(420, 249, 94, 23);
 		frame.getContentPane().add(lblContinuous);
 
 		targetlbl = new JLabel("Target Attribute");
 		targetlbl.setForeground(Color.BLACK);
 		targetlbl.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		targetlbl.setBounds(227, 216, 124, 23);
+		targetlbl.setBounds(227, 182, 124, 23);
 		frame.getContentPane().add(targetlbl);
 
 		scrollPane_2 = new JScrollPane();
@@ -269,7 +258,7 @@ public class Program {
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane_2
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane_2.setBounds(209, 242, 135, 64);
+		scrollPane_2.setBounds(209, 208, 135, 64);
 		frame.getContentPane().add(scrollPane_2);
 
 		targetList = new JList<Attribute>();
@@ -287,7 +276,7 @@ public class Program {
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane_3
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane_3.setBounds(209, 541, 135, 64);
+		scrollPane_3.setBounds(209, 507, 135, 64);
 		frame.getContentPane().add(scrollPane_3);
 
 		ignoreList = new JList<Attribute>();
@@ -304,7 +293,7 @@ public class Program {
 		JLabel lblIgnoreAttribute = new JLabel("Ignore Attribute");
 		lblIgnoreAttribute.setForeground(Color.BLACK);
 		lblIgnoreAttribute.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		lblIgnoreAttribute.setBounds(227, 517, 124, 23);
+		lblIgnoreAttribute.setBounds(227, 483, 124, 23);
 		frame.getContentPane().add(lblIgnoreAttribute);
 
 		JButton leftMoveBtn = new JButton("\u2190");
@@ -313,7 +302,7 @@ public class Program {
 				moveAllSelectedItems("left");
 			}
 		});
-		leftMoveBtn.setBounds(206, 398, 50, 50);
+		leftMoveBtn.setBounds(206, 364, 50, 50);
 		frame.getContentPane().add(leftMoveBtn);
 
 		JButton upMoveBtn = new JButton("\u2191");
@@ -322,7 +311,7 @@ public class Program {
 				moveAllSelectedItems("up");
 			}
 		});
-		upMoveBtn.setBounds(255, 343, 50, 50);
+		upMoveBtn.setBounds(255, 309, 50, 50);
 		frame.getContentPane().add(upMoveBtn);
 
 		JButton rightMoveBtn = new JButton("\u2192");
@@ -331,7 +320,7 @@ public class Program {
 				moveAllSelectedItems("right");
 			}
 		});
-		rightMoveBtn.setBounds(305, 398, 50, 50);
+		rightMoveBtn.setBounds(305, 364, 50, 50);
 		frame.getContentPane().add(rightMoveBtn);
 
 		JButton downMoveBtn = new JButton("\u2193");
@@ -340,17 +329,25 @@ public class Program {
 				moveAllSelectedItems("down");
 			}
 		});
-		downMoveBtn.setBounds(255, 454, 50, 50);
+		downMoveBtn.setBounds(255, 420, 50, 50);
 		frame.getContentPane().add(downMoveBtn);
 
-		JButton btnCollect = new JButton("Collect");
+		btnCollect = new JButton("Analyze");
 		btnCollect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				collectStatistics();
 			}
 		});
-		btnCollect.setBounds(387, 582, 89, 23);
+		btnCollect.setBounds(432, 594, 89, 50);
 		frame.getContentPane().add(btnCollect);
+		
+		progressBarLabel = new JLabel();
+		progressBarLabel.setBounds(10, 607, 220, 19);
+		frame.getContentPane().add(progressBarLabel);
+		
+		statusLabel = new JLabel("");
+		statusLabel.setBounds(242, 594, 89, 50);
+		frame.getContentPane().add(statusLabel);
 	}
 
 	public void readTop200DataToJTable(String filePath) {
@@ -398,12 +395,23 @@ public class Program {
 					DefaultListModel<Attribute> targetListModel = new DefaultListModel<Attribute>();
 					DefaultListModel<Attribute> ignoreListModel = new DefaultListModel<Attribute>();
 					for (int i = 0; i < dataStatistics.size(); i++) {
-						if (dataStatistics.get(i).size() > 5) {
+						if(i==dataStatistics.size()-1){
+							allDataAttributes.get(i).setAttributeType(
+									Attribute.TARGET);
+							targetListModel.addElement(allDataAttributes.get(i));
+						}
+						else if(dataStatistics.get(i).size() >= counter){
+							allDataAttributes.get(i).setAttributeType(
+									Attribute.IGNORE);
+							ignoreListModel.addElement(allDataAttributes.get(i));
+						}
+						else if (dataStatistics.get(i).size() > 20) {
 							allDataAttributes.get(i).setAttributeType(
 									Attribute.CONTINUOUS);
 							continuousListModel.addElement(allDataAttributes
 									.get(i));
-						} else {
+						} 
+						else {
 							allDataAttributes.get(i).setAttributeType(
 									Attribute.DISCRETE);
 							discreteListModel.addElement(allDataAttributes
@@ -425,6 +433,7 @@ public class Program {
 							JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 					tabbedPane.addTab("Preview top 200",
 							new JScrollPane(jsPane));
+					tabbedPane.setSelectedIndex(tabbedPane.getTabCount()-1);
 
 				} catch (Exception e) {
 					final String errorMsg = new String(e.getMessage());
@@ -503,6 +512,10 @@ public class Program {
 	}
 
 	public void collectStatistics() {
+		ImageIcon icon = new ImageIcon("images/progressBarLoading.gif");
+		progressBarLabel.setIcon(icon);
+		btnCollect.setEnabled(false); 
+		statusLabel.setText("Reading Data ...");
 		for (Attribute attr : allDataAttributes) {
 			if (attr.getAttributeType() == Attribute.TARGET)
 				target = attr;
@@ -531,7 +544,6 @@ public class Program {
 								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = key;
 									isOneOfTargetValueAssigned = true;
-									System.out.println("One of target value is "+ oneOfTargetValue+ " assigned from CONTINUOUS");
 								}
 								Map<String, List<Double>> statisticsMap = currentAttribute.getContinuousStatistics();
 								double parsedDouble=0.0;
@@ -557,7 +569,6 @@ public class Program {
 								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = targetValue;
 									isOneOfTargetValueAssigned = true;
-									System.out.println("One of target value is "+ oneOfTargetValue + " assigned from DISCRETE");
 								}
 
 								if (statisticsMap.containsKey(currentValue)) {
@@ -596,7 +607,6 @@ public class Program {
 								if (!isOneOfTargetValueAssigned) {
 									oneOfTargetValue = targetValue;
 									isOneOfTargetValueAssigned = true;
-									System.out.println("One of target value is "+ oneOfTargetValue+ " assigned from TARGET");
 								}
 
 								if (statisticsMap.containsKey(targetValue)) {
@@ -612,45 +622,28 @@ public class Program {
 						}
 						dataCounter++;
 					}
-					for (Attribute attr : allDataAttributes) {
-						if (attr.getAttributeType() == Attribute.DISCRETE)
-						{
-							int targetACount=0;
-							int targetBCount=0;
-							String[] key = target.getDiscreteStatistics().keySet().toArray(new String[0]);
-							targetACount = target.getDiscreteStatistics().get(key[0])[0];
-							targetBCount = target.getDiscreteStatistics().get(key[1])[0];
-							
-							System.out.println(String
-									.format("Attribute Name: %s, Type: %s, Different Key: %d, IV: %.3f, Importance: %.3f, Gain Ratio: %.3f",
-											attr.getAttributeName(), attr
-													.getAttributeType(), attr
-													.getDiscreteStatistics().size(),attr.getAttributeIV(),attr.getAttributeImportance(),attr.getAttributeGainRatio(targetACount,targetBCount)));
+					String[] key = target.getDiscreteStatistics().keySet().toArray(new String[0]);
+					targetACount = target.getDiscreteStatistics().get(key[0])[0];
+					targetBCount = target.getDiscreteStatistics().get(key[1])[0];
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							statusLabel.setText("Analyzing Data ...");
 						}
-//							else if (attr.getAttributeType() == Attribute.CONTINUOUS)
-//							System.out.println(String
-//									.format("Attribute Name: %s, Type: %s, 0 count: %d, Importance: %.3f",
-//											attr.getAttributeName(), attr
-//													.getAttributeType(), attr
-//													.getContinuousStatistics().get(oneOfTargetValue).size(),attr.getAttributeImportance()));
-//						else if (attr.getAttributeType() == Attribute.TARGET)
-//							System.out.println(String
-//									.format("Attribute Name: %s, Type: %s, 0 count: %d, 1 count: %d ",
-//											attr.getAttributeName(), attr
-//													.getAttributeType(), attr
-//													.getTargetACount(),
-//											attr.getTargetBCount()));
-					}
-					System.out.println("Data Counter: " + dataCounter);
+					});
+					loadAnalysisResultToJTable();
 				} catch (FileNotFoundException e) {
-					JOptionPane.showMessageDialog(frame.getContentPane(),
-							"File not found", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null,
+									e.getMessage(), "ERROR",
+									JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					JOptionPane.showMessageDialog(frame.getContentPane(),
-							e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-				} finally {
+							JOptionPane.showMessageDialog(null,
+									e.getMessage(), "ERROR",
+									JOptionPane.ERROR_MESSAGE);
+				} catch(Exception e){
+							JOptionPane.showMessageDialog(null,
+									e.getMessage(), "ERROR",
+									JOptionPane.ERROR_MESSAGE);
+				}finally {
 					try {
 						fReader.close();
 						bReader.close();
@@ -665,5 +658,42 @@ public class Program {
 			}
 		});
 		thread.start();
+	}
+
+	public void loadAnalysisResultToJTable(){
+		String[] columnsName = new String[]{"Attribute Name","Information Value","Importance", "Gain Ratio"};
+		ArrayList<String[]> dataList = new ArrayList<String[]>();
+		for(Attribute attr: allDataAttributes)
+		{
+			if(attr.getAttributeType()==Attribute.IGNORE || attr.getAttributeType()==Attribute.TARGET) continue;
+			else
+			{
+				String[] data = new String[4];
+				data[0] = attr.getAttributeName();
+				data[1] = String.valueOf(String.format("%.3f", attr.getAttributeIV()));
+				data[2] = String.valueOf(String.format("%.3f",attr.getAttributeImportance()));
+				data[3] = String.valueOf(String.format("%.3f",attr.getAttributeGainRatio(targetACount, targetBCount)));
+				dataList.add(data);
+			}
+		}
+		String[][] dataArray = dataList.toArray(new String[0][]);
+		DefaultTableModel model = new DefaultTableModel(dataArray,columnsName);
+		JTable table = new JTable(model);
+		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
+		sorter.setSortable(1, true);
+		table.setRowSorter(sorter);
+		JScrollPane pane = new JScrollPane(table);
+		tabbedPane.add("Analysis Results",pane);
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				btnCollect.setEnabled(true);
+				statusLabel.setText("Done!");
+				progressBarLabel.setIcon(null);
+				tabbedPane.setSelectedIndex(tabbedPane.getTabCount()-1);
+			}
+		});
+		
+		
 	}
 }
