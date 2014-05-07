@@ -81,6 +81,10 @@ public class Program {
 	private JLabel statusLabel;
 	private JButton btnCollect; 
 	private JLabel progressBarLabel;
+	private JButton leftMoveBtn;
+	private JButton rightMoveBtn;
+	private JButton upMoveBtn;
+	private JButton downMoveBtn;
 
 	/**
 	 * Launch the application.
@@ -296,7 +300,7 @@ public class Program {
 		lblIgnoreAttribute.setBounds(227, 483, 124, 23);
 		frame.getContentPane().add(lblIgnoreAttribute);
 
-		JButton leftMoveBtn = new JButton("\u2190");
+		leftMoveBtn = new JButton("\u2190");
 		leftMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				moveAllSelectedItems("left");
@@ -305,7 +309,7 @@ public class Program {
 		leftMoveBtn.setBounds(206, 364, 50, 50);
 		frame.getContentPane().add(leftMoveBtn);
 
-		JButton upMoveBtn = new JButton("\u2191");
+		upMoveBtn = new JButton("\u2191");
 		upMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				moveAllSelectedItems("up");
@@ -314,7 +318,7 @@ public class Program {
 		upMoveBtn.setBounds(255, 309, 50, 50);
 		frame.getContentPane().add(upMoveBtn);
 
-		JButton rightMoveBtn = new JButton("\u2192");
+		rightMoveBtn = new JButton("\u2192");
 		rightMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				moveAllSelectedItems("right");
@@ -323,7 +327,7 @@ public class Program {
 		rightMoveBtn.setBounds(305, 364, 50, 50);
 		frame.getContentPane().add(rightMoveBtn);
 
-		JButton downMoveBtn = new JButton("\u2193");
+		downMoveBtn = new JButton("\u2193");
 		downMoveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				moveAllSelectedItems("down");
@@ -333,6 +337,7 @@ public class Program {
 		frame.getContentPane().add(downMoveBtn);
 
 		btnCollect = new JButton("Analyze");
+		
 		btnCollect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				collectStatistics();
@@ -348,9 +353,20 @@ public class Program {
 		statusLabel = new JLabel("");
 		statusLabel.setBounds(242, 594, 89, 50);
 		frame.getContentPane().add(statusLabel);
+		
+		btnCollect.setEnabled(false);
+		upMoveBtn.setEnabled(false);
+		leftMoveBtn.setEnabled(false);
+		rightMoveBtn.setEnabled(false);
+		downMoveBtn.setEnabled(false);
 	}
 
 	public void readTop200DataToJTable(String filePath) {
+		btnCollect.setEnabled(true);
+		upMoveBtn.setEnabled(true);
+		leftMoveBtn.setEnabled(true);
+		rightMoveBtn.setEnabled(true);
+		downMoveBtn.setEnabled(true);
 		final String csvFile = new String(filePath);
 		Thread thread = new Thread(new Runnable() {
 			String line = "";
@@ -512,7 +528,7 @@ public class Program {
 	}
 
 	public void collectStatistics() {
-		ImageIcon icon = new ImageIcon("images/progressBarLoading.gif");
+		ImageIcon icon = new ImageIcon(getClass().getResource("/progressBarLoading.gif"));
 		progressBarLabel.setIcon(icon);
 		btnCollect.setEnabled(false); 
 		statusLabel.setText("Reading Data ...");
